@@ -30,6 +30,9 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
+          <Button variant="ghost" asChild size="sm">
+            <a href="/dashboard">Dashboard</a>
+          </Button>
           <Button variant="outline" asChild size="sm">
             <a href="/sign-in">Войти</a>
           </Button>
@@ -60,6 +63,9 @@ export function Header() {
             </a>
             <a href="#pricing" className="text-sm text-muted-foreground" onClick={() => setMenuOpen(false)}>
               Тарифы
+            </a>
+            <a href="/dashboard" className="text-sm text-muted-foreground" onClick={() => setMenuOpen(false)}>
+              Dashboard
             </a>
             <div className="flex gap-3 pt-2">
               <Button variant="outline" asChild size="sm" className="flex-1">
