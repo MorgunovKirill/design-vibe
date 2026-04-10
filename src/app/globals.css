@@ -114,8 +114,12 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
     scroll-padding-top: 4rem;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
   * {
     @apply border-border outline-ring/50;

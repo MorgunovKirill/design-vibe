@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Taskflow** is a Trello-clone project management application built with Next.js 15. This is the **starter scaffold** — auth, database integration, and platform features are not yet implemented.
+**Taskflow** is a Trello-clone project management application built with Next.js 15. The marketing landing page is fully implemented; auth, database integration, and platform features are not yet implemented.
 
 ## Development Commands
 
@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Development server with Turbopack
 npm run dev
 
-# Production build with Turbopack
+# Production build
 npm run build
 
 # Start production server
@@ -22,7 +22,7 @@ npm start
 npx shadcn@latest add <component-name>
 ```
 
-**Note on linting**: `npm run lint` may fail because the project uses `.eslintrc.json` but ESLint 9 expects `eslint.config.js`. Linting still runs successfully as part of `npm run build`.
+**Note on linting**: `npm run lint` may fail because the project uses `.eslintrc.json` but ESLint 9 expects `eslint.config.js`. Linting still runs as part of `npm run build`.
 
 ## Architecture
 
@@ -30,16 +30,16 @@ npx shadcn@latest add <component-name>
 
 Three Next.js App Router route groups (parentheses don't affect URLs):
 
+- **`(marketing)/`** — `/`: Full landing page with all sections implemented in `src/components/landing/`.
 - **`(auth)/`** — `/sign-in`, `/sign-up`: Centered layout with gradient background. Auth forms are **TODO** stubs.
-- **`(marketing)/`** — `/`: Public landing page with hero + 3 feature cards. No header/footer layout yet.
 - **`(platform)/`** — `/dashboard/*`: Protected area. **Auth guard is a TODO** — currently renders children unconditionally.
 
-### What's Implemented
+### Landing Page Structure
 
-- Route group structure with layouts
-- shadcn/ui Button component only (`src/components/ui/button.tsx`)
-- `cn()` utility from `@/lib/utils` (clsx + tailwind-merge)
-- Styling system: Tailwind CSS 4, OKLCH color tokens, dark mode via CSS variables
+The marketing page (`src/app/(marketing)/page.tsx`) composes sections in order:
+`Header → HeroSection → LogoBar → FeaturesSection → HowItWorks → UseCases → Integrations → Testimonials → PricingSection → FinalCta → Footer`
+
+Each section is a separate component in `src/components/landing/`. Scroll-triggered animations use the `useInView` hook from `src/hooks/use-in-view.ts`.
 
 ### What's Not Yet Implemented
 
@@ -47,21 +47,18 @@ Three Next.js App Router route groups (parentheses don't affect URLs):
 - Auth guard in `(platform)/layout.tsx`
 - Sign-in / sign-up forms
 - Dashboard and board functionality
-- Additional shadcn/ui components
 
 ## Tech Stack
 
-- **Next.js 15** with Turbopack
-- **React 19**, **TypeScript** (strict mode, `noUnusedLocals`, `noUnusedParameters`)
+- **Next.js 15** with Turbopack, **React 19**, **TypeScript** (strict, `noUnusedLocals`, `noUnusedParameters`)
 - **Tailwind CSS 4** with `tw-animate-css`
-- **shadcn/ui** (New York style, neutral base, CSS variables, components in `src/components/ui/`)
+- **shadcn/ui** — New York style, neutral base, CSS variables; components in `src/components/ui/`
 - **Fonts**: Geist Sans and Geist Mono
+- **Package manager**: npm
 
-### Path Aliases
+### Key Conventions
 
-- `@/*` → `./src/*`
-- `@/components`, `@/ui`, `@/lib`, `@/hooks` as configured in `components.json`
-
-### Styling
-
-CSS variables defined in `src/app/globals.css` using OKLCH color space. Use `cn()` from `@/lib/utils` for conditional className merging. Gradient pattern: `from-background to-secondary`.
+- Path alias `@/*` → `./src/*`
+- Use `cn()` from `@/lib/utils` (clsx + tailwind-merge) for conditional classNames
+- CSS variables in `src/app/globals.css` use OKLCH color space
+- Gradient pattern: `from-background to-secondary`

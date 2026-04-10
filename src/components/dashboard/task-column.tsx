@@ -3,13 +3,15 @@ import type { Task, TaskStatus } from '@/lib/mock-tasks'
 
 export function TaskColumn({ title, tasks }: { title: TaskStatus; tasks: Task[] }) {
   return (
-    <div className="flex flex-col w-[264px]">
-      <h2 className="text-lg font-semibold text-black mb-[14px]">{title}</h2>
-      <div className="flex flex-col gap-3">
+    <section className="flex flex-col w-[264px]" aria-label={title}>
+      <h2 className="text-lg font-semibold text-foreground mb-3.5">{title}</h2>
+      <ul className="flex flex-col gap-3 list-none p-0 m-0">
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
+          <li key={task.id}>
+            <TaskCard task={task} />
+          </li>
         ))}
-      </div>
-    </div>
+      </ul>
+    </section>
   )
 }
