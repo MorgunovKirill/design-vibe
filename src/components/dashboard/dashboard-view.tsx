@@ -1,10 +1,9 @@
 "use client";
 
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { TaskColumn } from "@/components/dashboard/task-column";
+import { CreateTaskDialog } from "@/components/dashboard/create-task-dialog";
 import { useInView } from "@/hooks/use-in-view";
-import type { Task, TaskStatus } from "@/lib/mock-tasks";
+import type { Task, TaskStatus } from "@/lib/types";
 
 interface DashboardColumn {
   status: TaskStatus;
@@ -20,10 +19,7 @@ export function DashboardView({ columns }: { columns: DashboardColumn[] }) {
         className={`flex items-center gap-4 mb-20 transition-all duration-[600ms] motion-reduce:transition-none ${isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
       >
         <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
-        <Button className="gap-2 rounded-md">
-          <Plus className="size-4" aria-hidden="true" />
-          Create task
-        </Button>
+        <CreateTaskDialog />
       </div>
 
       <section

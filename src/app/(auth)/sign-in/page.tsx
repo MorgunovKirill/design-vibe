@@ -1,11 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
+import { signInWithEmail } from "@/lib/actions/auth";
+import { createClient } from "@/lib/supabase/client";
 
 export default function SignInPage() {
     const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [isPending, startTransition] = useTransition();
+
+    function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        setError(null);
+        const formData = new FormData(e.currentTarget);
+        startTransition(async () => {
+            const result = await signInWithEmail(formData);
+            if (result?.error) setError(result.error);
+        });
+    }
+
+    async function handleOAuth(provider: "google" | "github") {
+        setError(null);
+        const supabase = createClient();
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider,
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`,
+            },
+        });
+        if (error) setError(error.message);
+    }
 
     return (
         <div className="mx-auto w-full max-w-[420px]">
@@ -25,6 +51,7 @@ export default function SignInPage() {
                 <div className="mb-6 grid grid-cols-2 gap-3">
                     <button
                         type="button"
+                        onClick={() => handleOAuth("google")}
                         className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-2.5 text-sm text-white/70 transition-all hover:border-white/10 hover:bg-white/[0.06] hover:text-white"
                     >
                         <svg className="h-4 w-4" viewBox="0 0 24 24">
@@ -37,6 +64,7 @@ export default function SignInPage() {
                     </button>
                     <button
                         type="button"
+                        onClick={() => handleOAuth("github")}
                         className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-2.5 text-sm text-white/70 transition-all hover:border-white/10 hover:bg-white/[0.06] hover:text-white"
                     >
                         <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" /></svg>
@@ -54,15 +82,24 @@ export default function SignInPage() {
                     </div>
                 </div>
 
+                {/* Error */}
+                {error && (
+                    <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                        {error}
+                    </div>
+                )}
+
                 {/* Form */}
-                <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                <form className="space-y-4" onSubmit={handleSubmit}>
                     <div className="space-y-2">
                         <label htmlFor="email" className="text-xs font-medium uppercase tracking-wider text-white/30">
                             Email
                         </label>
                         <input
                             id="email"
+                            name="email"
                             type="email"
+                            required
                             placeholder="you@example.com"
                             className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-white/20 transition-all focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/25"
                         />
@@ -80,7 +117,9 @@ export default function SignInPage() {
                         <div className="relative">
                             <input
                                 id="password"
+                                name="password"
                                 type={showPassword ? "text" : "password"}
+                                required
                                 placeholder="••••••••"
                                 className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3 pr-11 text-sm text-white placeholder:text-white/20 transition-all focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/25"
                             />
@@ -96,10 +135,20 @@ export default function SignInPage() {
 
                     <button
                         type="submit"
-                        className="group flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-3 text-sm font-medium text-white transition-all hover:from-violet-500 hover:to-indigo-500 hover:shadow-lg hover:shadow-violet-500/20"
+                        disabled={isPending}
+                        className="group flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-3 text-sm font-medium text-white transition-all hover:from-violet-500 hover:to-indigo-500 hover:shadow-lg hover:shadow-violet-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Sign In
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                        {isPending ? (
+                            <>
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Signing in...
+                            </>
+                        ) : (
+                            <>
+                                Sign In
+                                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                            </>
+                        )}
                     </button>
                 </form>
             </div>

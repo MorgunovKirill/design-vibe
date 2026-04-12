@@ -1,11 +1,20 @@
-// TODO: Add authentication guard here
-// Redirect unauthenticated users to /sign-in
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 
-export default function PlatformLayout({
+export default async function PlatformLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const supabase = await createClient();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        redirect("/sign-in");
+    }
+
     return (
         <>
             <a
